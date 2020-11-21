@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+   <body>
+      <table id="list_bus" border = 1 style="width:100%">
+
+          <thead>
+            <td>ID</td>
+            <td>LineCode</td>
+            <td>LineID</td>
+            <td>LineDescr</td>
+          </thead>
+
+        {% for datum in data %}
+            <tr>
+                <td>{{ datum[0] }}</td>
+                <td>{{ datum[1] }}</td>
+                <td>{{ datum[2] }}</td>
+                <td>{{ datum[3] }}</td>
+            </tr>
+        {% endfor %}
+
+      </table>
+   </body>
+</html>
