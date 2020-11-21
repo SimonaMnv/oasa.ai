@@ -10,7 +10,7 @@ baseDB = os.path.join(basedir, 'oasa.db')
 app.config.update(
     SECRET_KEY='not-a-big-secret',
     SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL') or \
-                          'sqlite:///' + baseDB,
+                            'sqlite:///' + baseDB,
     SQLALCHEMY_TRACK_MODIFICATIONS=False
 )
 
@@ -22,6 +22,7 @@ class bus(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     LineCode = db.Column(db.String(20), nullable=False)
     LineID = db.Column(db.String(20), nullable=False)
+    RouteCode = db.Column(db.String(60), nullable=False)
     LineDescr = db.Column(db.String(60), nullable=False)
 
     def __repr__(self):
@@ -30,15 +31,15 @@ class bus(db.Model):
 
 class stop(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    stop_code = db.Column(db.String(60), unique=False, nullable=False)
-    stop_names = db.Column(db.String(60), unique=False, nullable=False)
+    RouteCode = db.Column(db.String(60), nullable=False)
+    stop_codes = db.Column(db.String(60), unique=False)
+    stop_names = db.Column(db.String(60), unique=False,)
 
     def __repr__(self):
-        return '<Stop %r>' % self.stop_code
+        return '<Stop %r>' % self.stop_codes
 
 
 # create the initial database
 db.create_all()
-
 
 # TODO: a third table (union) that has One-to-Many Relationship [1 Bus : N Stops]

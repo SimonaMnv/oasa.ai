@@ -1,14 +1,13 @@
 <!doctype html>
 <html>
    <body>
-      <table id="list_bus" border = 1 style="width:100%">
+      <table id="list_stops" border = 1 style="width:100%">
 
           <thead>
             <td>ID</td>
-            <td>LineCode</td>
-            <td>LineID</td>
             <td>RouteCode</td>
-            <td>LineDescr</td>
+            <td>StopCodes</td>
+            <td>StopNames</td>
           </thead>
 
         {% for datum in data %}
@@ -17,7 +16,6 @@
                 <td>{{ datum[1] }}</td>
                 <td>{{ datum[2] }}</td>
                 <td>{{ datum[3] }}</td>
-                <td>{{ datum[4] }}</td>
             </tr>
         {% endfor %}
 
