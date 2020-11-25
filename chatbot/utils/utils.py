@@ -1,7 +1,9 @@
 import numpy as np
 import spacy
-
 nlp = spacy.load('el_core_news_lg')
+
+# TODO: run once to install greek package (spacy v. 2.3.0)
+# python -m spacy download el_core_news_lg
 
 
 # compute sigmoid nonlinearity

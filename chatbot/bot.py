@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from bot.sadasd.asdasd import classify
+from chatbot.utils.utils import classify
 import random
 
 # load our calculated synapse values
@@ -27,12 +27,12 @@ def getResponse(msg):
         for i in list_of_intents:
             if i['class'] == tag:
                 result = random.choice(i['responses'])
-            else:                                           # doesn't belong to any class
-                result = "Χμμμ. Για ξαναπές το αυτό"
-                tag = "None"
-
+                return result, tag
+    else:                                                   # doesn't belong to any class
+        result = "Χμμμ. Για ξαναπές το αυτό"
+        tag = "None"
         return result, tag
 
 
 # Probabilistic results -> testing reasons
-print(classify("πού είναι το λεωφορείο", synapse_0, synapse_1, words, classes))
+# print(classify("πού είναι το λεωφορείο", synapse_0, synapse_1, words, classes))

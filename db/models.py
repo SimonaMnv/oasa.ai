@@ -33,7 +33,7 @@ class stop(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     RouteCode = db.Column(db.String(60), nullable=False)
     stop_codes = db.Column(db.String(60), unique=False)
-    stop_names = db.Column(db.String(60), unique=False,)
+    stop_names = db.Column(db.String(60), unique=False, )
 
     def __repr__(self):
         return '<Stop %r>' % self.stop_codes

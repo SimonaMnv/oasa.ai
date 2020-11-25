@@ -23,8 +23,6 @@ def fill_bus():
         db.session.commit()
 
 
-fill_bus()
-
 # fill up the stops table with info from the OASA API
 def fill_stops():
     for resp in json_response:
@@ -43,4 +41,6 @@ def fill_stops():
             db.session.commit()
 
 
+# fill db
+fill_bus()
 fill_stops()
