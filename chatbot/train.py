@@ -2,7 +2,9 @@ import numpy as np
 import json
 import spacy
 import time
-from bot.brain import train
+
+from chatbot.brain import train
+from chatbot.utils import utils
 
 nlp = spacy.load('el_core_news_lg')
 
@@ -20,7 +22,7 @@ ignore_words = ['?', '!', ';', '-PRON-']
 for intent in training_data['intents']:
     for pattern in intent['patterns']:
         # tokenize each word in the sentence
-        w = nlp(pattern)
+        w = nlp(utils.strip_accents(pattern))
         # Stemming and removing words
         # add to our words list
         lemmas = [w1.lemma_ for w1 in w if w1.lemma_ not in ignore_words]
