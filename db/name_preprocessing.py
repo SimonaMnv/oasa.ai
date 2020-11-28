@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from db.app import app
-from db.models import bus, stop
+from db.models import stop
 import sqlite3
 
 db = SQLAlchemy(app)

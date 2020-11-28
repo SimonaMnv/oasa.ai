@@ -4,7 +4,6 @@ from flask import Flask, render_template
 app = Flask(__name__)
 
 
-# print list
 @app.route('/')
 def hello_world():
     return 'i think it works'
