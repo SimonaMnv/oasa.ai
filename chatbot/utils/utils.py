@@ -1,6 +1,10 @@
+import unicodedata
+
 import numpy as np
 import spacy
+
 nlp = spacy.load('el_core_news_lg')
+
 
 # TODO: run once to install greek package (spacy v. 2.3.0)
 # python -m spacy download el_core_news_lg
@@ -52,6 +56,7 @@ def think(sentence, words, synapse_0, synapse_1, show_details=False):
 
 
 def classify(sentence, synapse_0, synapse_1, words, classes, ERROR_THRESHOLD=0.2, show_details=False):
+    sentence = strip_accents(sentence)
     results = think(sentence, words, synapse_0, synapse_1, show_details)
 
     results = [[i, r] for i, r in enumerate(results) if r > ERROR_THRESHOLD]
@@ -65,3 +70,6 @@ def classify(sentence, synapse_0, synapse_1, words, classes, ERROR_THRESHOLD=0.2
     return {"probability": probability, "entities": entities, "variables": variables}
 
 
+def strip_accents(s):
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                   if unicodedata.category(c) != 'Mn')

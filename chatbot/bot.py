@@ -21,18 +21,18 @@ def getResponse(msg):
 
     # does usr_input belong to a class?
     if predict['probability']:
-        tag = predict['probability'][0][0]                  # take the class only (example : busStop)
+        tag = predict['probability'][0][0]  # take the class only (example : busStop)
 
-        list_of_intents = intents['intents']                # belongs to some class, get a random answer
+        list_of_intents = intents['intents']  # belongs to some class, get a random answer
         for i in list_of_intents:
             if i['class'] == tag:
                 result = random.choice(i['responses'])
                 return result, tag
-    else:                                                   # doesn't belong to any class
+    else:  # doesn't belong to any class
         result = "Χμμμ. Για ξαναπές το αυτό"
         tag = "None"
         return result, tag
 
 
 # Probabilistic results -> testing reasons
-# print(classify("πού είναι το λεωφορείο", synapse_0, synapse_1, words, classes))
+print(classify("σε πόσο ρε γιαγια", synapse_0, synapse_1, words, classes))

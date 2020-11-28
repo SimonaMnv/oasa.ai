@@ -1,12 +1,13 @@
 import datetime
 import json
 import numpy as np
-from grandmai.utils import sigmoid, sigmoid_output_to_derivative
+
+from chatbot.utils.utils import sigmoid, sigmoid_output_to_derivative
 
 
 def train(X, y, classes, words, hidden_neurons=10, alpha=1, epochs=50000, dropout=False, dropout_percent=0.5):
     print("Training with %s neurons, alpha:%s, dropout:%s %s" % (
-    hidden_neurons, str(alpha), dropout, dropout_percent if dropout else ''))
+        hidden_neurons, str(alpha), dropout, dropout_percent if dropout else ''))
     print("Input matrix: %sx%s    Output matrix: %sx%s" % (len(X), len(X[0]), 1, len(classes)))
     np.random.seed(1)
 
@@ -29,7 +30,7 @@ def train(X, y, classes, words, hidden_neurons=10, alpha=1, epochs=50000, dropou
 
         if (dropout):
             layer_1 *= np.random.binomial([np.ones((len(X), hidden_neurons))], 1 - dropout_percent)[0] * (
-                        1.0 / (1 - dropout_percent))
+                    1.0 / (1 - dropout_percent))
 
         layer_2 = sigmoid(np.dot(layer_1, synapse_1))
 
