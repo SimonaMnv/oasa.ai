@@ -25,5 +25,13 @@ def list_stop():
         return render_template('list_stops.html', data=c.fetchall())
 
 
+@app.route('/list_buses_stops')
+def list_stops_buses():
+    with sqlite3.connect("oasa.db") as con:
+        c = con.cursor()
+        c.execute("SELECT * FROM buses_stops")
+        return render_template('list_buses_stops.html', data=c.fetchall())
+
+
 if __name__ == '__main__':
     app.run()

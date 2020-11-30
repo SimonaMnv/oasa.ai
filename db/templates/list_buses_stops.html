@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+   <body>
+      <table id="list_buses_stops" border = 1 style="width:100%">
+
+          <thead>
+            <td>Route Code</td>
+            <td>Bus Code</td>
+          </thead>
+
+        {% for datum in data %}
+            <tr>
+                <td>{{ datum[0] }}</td>
+                <td>{{ datum[1] }}</td>
+            </tr>
+        {% endfor %}
+
+      </table>
+   </body>
+</html>
