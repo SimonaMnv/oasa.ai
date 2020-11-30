@@ -1,7 +1,7 @@
 import requests
 from flask_sqlalchemy import SQLAlchemy
 from db.app import app
-from db.models import Bus, Stop
+from db.models import Bus, Stop, Association
 
 # connect to OASA API -> this API returns LineCode, LineID, LineDescr
 responseINFO = requests.post("http://telematics.oasa.gr/api/?act=webGetLines")
@@ -23,7 +23,7 @@ def fill_stops():
             stop_codes = (sc['StopCode'])   # each stop has a stop code
             stop_names = (sc['StopDescr'])  # for each stop code we have a stop name
 
-            record = Stop(RouteCode=routecode, stop_codes=stop_codes, stop_names=stop_names)   # change to bulk insert
+            record = Stop(route_code=routecode, stop_codes=stop_codes, stop_names=stop_names)   # change to bulk insert
             db.session.add(record)
             db.session.commit()
 
@@ -36,12 +36,17 @@ def fill_bus():
             "http://telematics.oasa.gr/api/?act=webGetRoutes&p1=" + resp['LineCode']).json()
         routecode = routecodeResponse[0]['RouteCode']
 
-        record = Bus(LineCode=resp['LineCode'], LineID=resp['LineID'], LineDescr=resp['LineDescr'], RouteCode=routecode)
+        record = Bus(line_code=resp['LineCode'], line_id=resp['LineID'], line_descr=resp['LineDescr'], route_code=routecode)
         db.session.add(record)
         db.session.commit()
 
 
-# fill db
+# fill bus and stop tables
 fill_stops()
 fill_bus()
 
+# TODO: fill the bidirectional many:many relationship
+b = Bus()
+a = Association(extra_data="some data")
+a.stop = Stop()
+b.stops.append(a)
