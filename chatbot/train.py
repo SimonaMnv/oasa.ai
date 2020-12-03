@@ -2,7 +2,6 @@ import numpy as np
 import json
 import spacy
 import time
-
 from chatbot.brain import train
 from chatbot.utils import utils
 

@@ -1,5 +1,4 @@
 import unicodedata
-
 import numpy as np
 import spacy
 

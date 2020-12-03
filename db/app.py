@@ -13,7 +13,7 @@ def hello_world():
 def list_bus():
     with sqlite3.connect("oasa.db") as con:
         c = con.cursor()
-        c.execute("SELECT * FROM bus")
+        c.execute("SELECT * FROM buses_tables")
         return render_template('list_bus.html', data=c.fetchall())
 
 
@@ -21,8 +21,16 @@ def list_bus():
 def list_stop():
     with sqlite3.connect("oasa.db") as con:
         c = con.cursor()
-        c.execute("SELECT * FROM stop")
+        c.execute("SELECT * FROM stops_table")
         return render_template('list_stops.html', data=c.fetchall())
+
+
+@app.route('/list_buses_stops')
+def list_stops_buses():
+    with sqlite3.connect("oasa.db") as con:
+        c = con.cursor()
+        c.execute("SELECT * FROM association_table")
+        return render_template('list_buses_stops.html', data=c.fetchall())
 
 
 if __name__ == '__main__':

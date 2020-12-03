@@ -17,6 +17,7 @@ intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read
 
 # calculate its response
 def getResponse(msg):
+    # get class
     predict = classify(msg, synapse_0, synapse_1, words, classes)
 
     # does usr_input belong to a class?
@@ -35,4 +36,4 @@ def getResponse(msg):
 
 
 # Probabilistic results -> testing reasons
-print(classify("σε πόσο ρε γιαγια", synapse_0, synapse_1, words, classes))
+print(classify("σε ποσο θα έρθει", synapse_0, synapse_1, words, classes))
