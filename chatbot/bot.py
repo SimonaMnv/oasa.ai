@@ -35,4 +35,4 @@ def getResponse(msg):
 
 
 # Probabilistic results -> testing reasons
-print(classify("σε πόσο ρε γιαγια", synapse_0, synapse_1, words, classes))
+print(classify("σε ποσο θα έρθει", synapse_0, synapse_1, words, classes))
