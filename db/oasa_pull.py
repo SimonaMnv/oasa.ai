@@ -1,11 +1,5 @@
-import sqlite3
-
 import requests
-import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from db.app import app
 from db.models import Bus, Stop, Association
 
@@ -68,8 +62,8 @@ def insert_association(bus, stop):
 fill_stops()
 fill_bus()
 
-# TODO: fill the bidirectional many:many relationship
-b = Bus()
-a = Association(extra_data="some data")
-a.stop = Stop()
-b.stops.append(a)
+# # TODO: fill the bidirectional many:many relationship
+# b = Bus()
+# a = Association(extra_data="some data")
+# a.stop = Stop()
+# b.stops.append(a)

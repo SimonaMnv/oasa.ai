@@ -1,6 +1,5 @@
 import os
-
-import SQLAlchemy as SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String
 from db.app import app
 from sqlalchemy.orm import relationship
