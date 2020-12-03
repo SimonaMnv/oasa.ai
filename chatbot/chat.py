@@ -13,7 +13,7 @@ def home():
 def get_bot_response():
     userText = request.args.get('msg')
     resp, tag = getResponse(userText)
-    return str(resp, tag)
+    return str(resp)
 
 
 if __name__ == '__main__':

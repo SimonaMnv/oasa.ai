@@ -1,8 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
 import os
 
+import SQLAlchemy as SQLAlchemy
 from sqlalchemy import String
-
 from db.app import app
 from sqlalchemy.orm import relationship
 
