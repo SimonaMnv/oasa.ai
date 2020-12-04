@@ -72,3 +72,4 @@ def classify(sentence, synapse_0, synapse_1, words, classes, ERROR_THRESHOLD=0.2
 def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s)
                    if unicodedata.category(c) != 'Mn')
+
