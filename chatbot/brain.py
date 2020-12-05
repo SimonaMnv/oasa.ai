@@ -5,7 +5,7 @@ import numpy as np
 from chatbot.utils.utils import sigmoid, sigmoid_output_to_derivative
 
 
-def train(X, y, classes, words, hidden_neurons=10, alpha=1, epochs=50000, dropout=False, dropout_percent=0.5):
+def train(X, y, classes, words, hidden_neurons=12, alpha=1, epochs=50000, dropout=False, dropout_percent=0.2):
     print("Training with %s neurons, alpha:%s, dropout:%s %s" % (
         hidden_neurons, str(alpha), dropout, dropout_percent if dropout else ''))
     print("Input matrix: %sx%s    Output matrix: %sx%s" % (len(X), len(X[0]), 1, len(classes)))
