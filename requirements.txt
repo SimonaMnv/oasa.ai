@@ -1,4 +1,4 @@
 pip install flask
 pip install spacy
 pip install numpy
-flask-sqlalchemy-2.1
+pip install flask-sqlalchemy==2.1

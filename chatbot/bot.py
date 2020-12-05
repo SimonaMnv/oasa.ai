@@ -25,7 +25,7 @@ intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read
 
 # calculate its response
 def getResponse(msg):
-    predict = classify(msg, synapse_0, synapse_1, words, classes)  # get class
+    predict = classify(msg.lower(), synapse_0, synapse_1, words, classes)  # get class
     max = 0
 
     # does usr_input belong to a class?
@@ -37,15 +37,20 @@ def getResponse(msg):
                 result = random.choice(i['responses'])
                 # TODO: 1. Static info -- StopInfo class detected:
                 if tag == 'stopInfo':
+
+                    entity = " ".join([obj for term in predict['entities'] for obj in term if obj.islower()])
+                    entity = entity if len(entity) > 0 else msg.lower()
+
                     query = db.session.query(Stop.stop_names)
                     for stop_name in query:
                         # find the name of the stop from db
-                        if stop_name[0].lower() in msg.lower():
+                        if stop_name[0].lower() in msg.lower().split(" "):
                             result = result + " " + stop_name[0]
                             return result, tag
                         else:
                             # else, use a similarity metric to suggest a similar stop
-                            stop_name_similarity = fuzz.partial_ratio(msg.lower(), stop_name[0].lower())
+                            # TODO: think about some way to filter out false positives (eg. ΡΙΟ / ΑΓΙΟΣ ΔΗΜΗΤΡΙΟΣ)
+                            stop_name_similarity = fuzz.partial_ratio(entity, stop_name[0].lower())
                             if stop_name_similarity > max:
                                 max = stop_name_similarity
                                 max_name = stop_name[0]
