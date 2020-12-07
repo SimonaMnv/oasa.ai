@@ -10,23 +10,7 @@ import random
 from db.models import Stop, db
 from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
-
-
-def levenshteinDistance(s1, s2):
-    if len(s1) > len(s2):
-        s1, s2 = s2, s1
-
-    distances = range(len(s1) + 1)
-    for i2, c2 in enumerate(s2):
-        distances_ = [i2 + 1]
-        for i1, c1 in enumerate(s1):
-            if c1 == c2:
-                distances_.append(distances[i1])
-            else:
-                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
-        distances = distances_
-    return distances[-1]
-
+import Levenshtein as lev
 
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
@@ -80,7 +64,7 @@ def getResponse(msg):
                     for stop_name in query:
                         # use a similarity metric to suggest a stop
                         # also, create custom stopwords list that has the default + all words from the JSON patterns
-                        lev_distance = levenshteinDistance(stop_name[0].lower(), predict['excluded_sentence'].lower())
+                        lev_distance = lev.distance(stop_name[0].lower(), predict['excluded_sentence'].lower())
                         if lev_distance < min:
                             min = lev_distance
                             min_name = stop_name[0]
