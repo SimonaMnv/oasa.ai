@@ -11,7 +11,6 @@ from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
 import Levenshtein as lev
 
-
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
 Session = sessionmaker(bind=engine)
@@ -23,15 +22,16 @@ training_data_file = 'data/training_dataGREEK.json'
 with open(training_data_file, encoding='utf-8') as data_file:
     training_data = json.load(data_file)
 
+stops = [word_tokenize(strip_accents(stop_name[0].lower())) for stop_name in db.session.query(Stop.stop_names)]
+stops = [item for sublist in stops for item in sublist]
+
 # add JSON patterns in stop words
-custom_stopwords = []
-custom_stopwords.append(STOP_WORDS)
+custom_stopwords = [strip_accents(stop_word) for stop_word in STOP_WORDS if strip_accents(stop_word) not in stops]
 for intent in training_data['intents']:
     for pattern in intent['patterns']:
         w = nlp(strip_accents(pattern.lower()))
         for word in w:
-            custom_stopwords.append(word)
-
+            custom_stopwords.append(str(word))
 
 # load our calculated synapse values
 synapse_file = 'data/synapses.json'
@@ -51,6 +51,7 @@ excluded_pos = ["VERB", "SYM", "NUM", "ADP", "AUX", "PRON"]
 def getResponse(msg):
     predict = classify(msg.lower(), synapse_0, synapse_1, words, classes, excluded_pos=excluded_pos)  # get class
     min = 19800
+    min_stop = None
 
     # does usr_input belong to a class?
     if predict['probability']:
@@ -61,23 +62,24 @@ def getResponse(msg):
                 result = random.choice(i['responses'])
                 # TODO: 1. Static info -- StopInfo class detected:
                 if tag == 'stopInfo':
-                    query = db.session.query(Stop.stop_names)
+                    query = db.session.query(Stop)
                     text_tokens = word_tokenize(predict['excluded_sentence'].lower())
-                    tokens_without_sw = " ".join([word for word in text_tokens if not word in str(custom_stopwords)])
+                    tokens_without_sw = " ".join([word for word in text_tokens if word not in custom_stopwords])
                     print("REMAINING SENTENCE:", tokens_without_sw)
-                    for stop_name in query:
+                    for stop in query:
                         # use a similarity metric to suggest a stop
                         # also, create custom stopwords list that has the default + all words from the JSON patterns
                         # also, exclude some POS
-                        lev_distance = lev.distance(stop_name[0].lower(), tokens_without_sw)
+                        lev_distance = lev.distance(stop.stop_names.lower(), tokens_without_sw)
                         if lev_distance < min:
                             min = lev_distance
-                            min_name = stop_name[0]
+                            min_name = stop.stop_names
                             print(min_name, min)
                             stop_result = min_name
                             if min == 0:
                                 break
-                    return result + " " + stop_result, tag
+
+                    return result + " " + stop_result, tag, min_stop
 
                 result = 'under construction' + tag
                 tag = "None"
