@@ -34,4 +34,4 @@ def list_stops_buses():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5002)
