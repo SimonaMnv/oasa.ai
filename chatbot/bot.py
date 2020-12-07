@@ -1,7 +1,6 @@
 import json
 import numpy as np
 import spacy
-from fuzzywuzzy import fuzz
 from nltk import word_tokenize
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,6 +10,7 @@ from db.models import Stop, db
 from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
 import Levenshtein as lev
+
 
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
@@ -43,7 +43,7 @@ with open(synapse_file) as data_file:
 
 intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read())
 
-excluded_pos = ["VERB", "SYM", "NUM", "ADP", "AUX", "ADV", "PRON"]
+excluded_pos = ["VERB", "SYM", "NUM", "ADP", "AUX", "PRON"]
 
 
 # calculate its response
@@ -61,10 +61,14 @@ def getResponse(msg):
                 # TODO: 1. Static info -- StopInfo class detected:
                 if tag == 'stopInfo':
                     query = db.session.query(Stop.stop_names)
+                    text_tokens = word_tokenize(predict['excluded_sentence'].lower())
+                    tokens_without_sw = " ".join([word for word in text_tokens if not word in str(custom_stopwords)])
+                    print("REMAINING SENTENCE:", tokens_without_sw)
                     for stop_name in query:
                         # use a similarity metric to suggest a stop
                         # also, create custom stopwords list that has the default + all words from the JSON patterns
-                        lev_distance = lev.distance(stop_name[0].lower(), predict['excluded_sentence'].lower())
+                        # also, exclude some POS
+                        lev_distance = lev.distance(stop_name[0].lower(), tokens_without_sw)
                         if lev_distance < min:
                             min = lev_distance
                             min_name = stop_name[0]
@@ -72,7 +76,11 @@ def getResponse(msg):
                             stop_result = min_name
                             if min == 0:
                                 break
-                return result + " " + stop_result, tag
+                    return result + " " + stop_result, tag
+
+                result = tag
+                tag = "None"
+                return result, tag
     else:  # doesn't belong to any class
         result = "Χμμμ. Για ξαναπές το αυτό"
         tag = "None"
@@ -80,7 +88,7 @@ def getResponse(msg):
 
 
 # Probabilistic results -> testing reasons
-print(classify("ποιο παει αγιο δημητριο", synapse_0, synapse_1, words, classes))
+print(classify("θελω να ξερω ποιο περναει απο σταση κατω πατησια", synapse_0, synapse_1, words, classes))
 
 # STATIC:
 # 1. poio lewforeio pernaei apo stash XXX  -> stopInfo
