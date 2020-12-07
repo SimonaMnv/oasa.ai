@@ -11,6 +11,23 @@ from db.models import Stop, db
 from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
 
+
+def levenshteinDistance(s1, s2):
+    if len(s1) > len(s2):
+        s1, s2 = s2, s1
+
+    distances = range(len(s1) + 1)
+    for i2, c2 in enumerate(s2):
+        distances_ = [i2 + 1]
+        for i1, c1 in enumerate(s1):
+            if c1 == c2:
+                distances_.append(distances[i1])
+            else:
+                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+        distances = distances_
+    return distances[-1]
+
+
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
 Session = sessionmaker(bind=engine)
@@ -31,7 +48,6 @@ for intent in training_data['intents']:
         for word in w:
             custom_stopwords.append(word)
 
-
 # load our calculated synapse values
 synapse_file = 'data/synapses.json'
 with open(synapse_file) as data_file:
@@ -43,11 +59,13 @@ with open(synapse_file) as data_file:
 
 intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read())
 
+excluded_pos = ["VERB", "SYM", "NUM", "ADP", "AUX", "ADV", "PRON"]
+
 
 # calculate its response
 def getResponse(msg):
-    predict = classify(msg.lower(), synapse_0, synapse_1, words, classes)  # get class
-    max = 0
+    predict = classify(msg.lower(), synapse_0, synapse_1, words, classes, excluded_pos=excluded_pos)  # get class
+    min = 19800
 
     # does usr_input belong to a class?
     if predict['probability']:
@@ -62,15 +80,13 @@ def getResponse(msg):
                     for stop_name in query:
                         # use a similarity metric to suggest a stop
                         # also, create custom stopwords list that has the default + all words from the JSON patterns
-                        text_tokens = word_tokenize(msg)
-                        tokens_without_sw = " ".join([word for word in text_tokens if not word in str(custom_stopwords)])
-                        stop_name_similarity = fuzz.partial_ratio(tokens_without_sw.lower(), stop_name[0].lower())
-                        if stop_name_similarity > max:
-                            max = stop_name_similarity
-                            max_name = stop_name[0]
-                            print(max_name, max)
-                            stop_result = max_name
-                            if max == 100:
+                        lev_distance = levenshteinDistance(stop_name[0].lower(), predict['excluded_sentence'].lower())
+                        if lev_distance < min:
+                            min = lev_distance
+                            min_name = stop_name[0]
+                            print(min_name, min)
+                            stop_result = min_name
+                            if min == 0:
                                 break
                 return result + " " + stop_result, tag
     else:  # doesn't belong to any class
@@ -80,7 +96,7 @@ def getResponse(msg):
 
 
 # Probabilistic results -> testing reasons
-print(classify("Ποιό περνάει απο την στάση πλ κανιγγος", synapse_0, synapse_1, words, classes))
+print(classify("ποιο παει αγιο δημητριο", synapse_0, synapse_1, words, classes))
 
 # STATIC:
 # 1. poio lewforeio pernaei apo stash XXX  -> stopInfo
