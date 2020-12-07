@@ -32,6 +32,7 @@ for intent in training_data['intents']:
         for word in w:
             custom_stopwords.append(word)
 
+
 # load our calculated synapse values
 synapse_file = 'data/synapses.json'
 with open(synapse_file) as data_file:
@@ -78,7 +79,7 @@ def getResponse(msg):
                                 break
                     return result + " " + stop_result, tag
 
-                result = tag
+                result = 'under construction' + tag
                 tag = "None"
                 return result, tag
     else:  # doesn't belong to any class
