@@ -9,4 +9,9 @@ Greek chatbot
     * check if user input exists as is. If not, suggest similar stops? # NOT BAD, NOT PERFECT 
     * Add the JSON patterns as stop words # DONE 
 * Phase 3: Chat API added # DONE
-* Phase 4: Class "stopInfo" responses # IN PROGRESS 
+* Phase 4: Class "stopInfo" responses # DONE
+* Phase 5: Class "BusRoute" response  # DONE
+* Phase 6: Class "busTime" response   # IN PROGRESS
+
+
+* TODO: Many:Many relationship table between stops and buses
