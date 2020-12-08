@@ -14,4 +14,5 @@ Greek chatbot
 * Phase 6: Class "busTime" response   # IN PROGRESS
 
 
-* TODO: Many:Many relationship table between stops and buses
+* TODO1: Many:Many relationship table between stops and buses
+* TODO2: A slightly better UI 
