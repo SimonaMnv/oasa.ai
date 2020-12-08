@@ -6,10 +6,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from chatbot.utils.utils import classify
 import random
-from db.models import Stop, db
+from db.models import Stop, db, Bus
 from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
 import Levenshtein as lev
+import re
 
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
@@ -44,14 +45,13 @@ with open(synapse_file) as data_file:
 
 intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read())
 
-excluded_pos = ["VERB", "SYM", "NUM", "ADP", "AUX", "PRON"]
-
 
 # calculate its response
 def getResponse(msg):
-    predict = classify(msg.lower(), synapse_0, synapse_1, words, classes, excluded_pos=excluded_pos)  # get class
+    predict = classify(msg.lower(), synapse_0, synapse_1, words, classes)
     min = 19800
     min_stop = None
+    flag = 0
 
     # does usr_input belong to a class?
     if predict['probability']:
@@ -60,7 +60,7 @@ def getResponse(msg):
         for i in list_of_intents:
             if i['class'] == tag:
                 result = random.choice(i['responses'])
-                # TODO: 1. Static info -- StopInfo class detected:
+                # TODO: 1. Static info -- StopInfo class detected: Return stop info
                 if tag == 'stopInfo':
                     query = db.session.query(Stop)
                     text_tokens = word_tokenize(predict['excluded_sentence'].lower())
@@ -80,6 +80,19 @@ def getResponse(msg):
                             if min == 0:
                                 break
                     return result + " " + stop_result, tag, min_stop
+                # TODO: 2. Static info -- busRoute class detected: Return bus info
+                if tag == 'busRoute':
+                    query = db.session.query(Bus)
+                    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg)
+                    print("REMAINING SENTENCE:", bus_id_format)
+                    for bus in query:
+                        if bus.line_id in bus_id_format[0].upper():
+                            bus_result = bus_id_format[0].upper()
+                            flag = 1
+                            found_bus = bus
+                    if flag == 0:
+                        return "Δέν το ξέρω αυτό το λεωφορείο", tag, None
+                    return result + " " + bus_result, tag, found_bus
 
                 result = 'under construction' + tag
                 tag = "None"
@@ -90,8 +103,5 @@ def getResponse(msg):
         return result, tag, None
 
 
-# Probabilistic results -> testing reasons
+# Probabilistic results -> testing reasons (this doesnt have cust_sw in it yet)
 print(classify("θελω να ξερω ποιο περναει απο σταση κατω πατησια", synapse_0, synapse_1, words, classes))
-
-# STATIC:
-# 1. poio lewforeio pernaei apo stash XXX  -> stopInfo

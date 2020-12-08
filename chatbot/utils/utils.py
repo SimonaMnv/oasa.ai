@@ -54,9 +54,10 @@ def think(sentence, words, synapse_0, synapse_1, show_details=False):
     return l2
 
 
-def classify(sentence, synapse_0, synapse_1, words, classes, ERROR_THRESHOLD=0.2, show_details=False,
-             excluded_pos=None):
-    if excluded_pos is None:
+def classify(sentence, synapse_0, synapse_1, words, classes, ERROR_THRESHOLD=0.2, show_details=False):
+    global_excluded_pos = ["VERB", "SYM", "ADP", "AUX", "PRON"]
+
+    if global_excluded_pos is None:
         excluded_pos = []
     sentence = strip_accents(sentence)
     results = think(sentence, words, synapse_0, synapse_1, show_details)
@@ -67,7 +68,7 @@ def classify(sentence, synapse_0, synapse_1, words, classes, ERROR_THRESHOLD=0.2
     probability = [[classes[r[0]], r[1]] for r in results]
     # print ("%s \n classification: %s" % (sentence, return_results))
     parsed_words = nlp(sentence)
-    new_sentence = " ".join([str(word) for word in parsed_words if word.pos_ not in excluded_pos])
+    new_sentence = " ".join([str(word) for word in parsed_words if word.pos_ not in global_excluded_pos])
     entities = [[entity.orth_, entity.ent_type_] for entity in parsed_words if entity.ent_type_]
     variables = [[entity.orth_, entity.dep_] for entity in parsed_words if entity.dep_ == 'dobj']
     return {"probability": probability, "entities": entities, "variables": variables, "excluded_sentence": new_sentence}

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from chatbot.bot import getResponse
-from db.models import Stop
+from db.models import Stop, Bus
 
 app = Flask(__name__)
 
@@ -13,12 +13,16 @@ def home():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg')
-    resp, tag, stop = getResponse(userText)
-    if stop is not None:
-        stops = [st for st in Stop.query.filter_by(stop_names=stop.stop_names).all()]
+    resp, tag, result = getResponse(userText)
+    if tag == "stopInfo" and result is not None:
+        stops = [st for st in Stop.query.filter_by(stop_names=result.stop_names).all()]
         bus_codes = [b.bus.line_id + ": " + b.bus.line_descr for st in stops for b in st.buses]
-        resp = str(resp) + " είναι παιδάκι μου πολλά, να πχ: " + ", ".join(bus_codes)
+        resp = str(resp) + " είναι παιδάκι μου πολλά, να πχ: \n" + ", ".join(bus_codes)
         resp += ", αλλά μεγάλη γυναίκα είμαι, μπορεί να ξεχνάω τίποτα"
+    if tag == "busRoute" and result is not None:
+        buses = [bs for bs in Bus.query.filter_by(line_id=result.line_id).all()]
+        stop_names = [s.stop.stop_names for bs in buses for s in bs.stops]
+        resp = str(resp) + "\n" + ", ".join(stop_names)
     return str(resp)
 
 
