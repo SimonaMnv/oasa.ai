@@ -11,6 +11,7 @@ from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
 import Levenshtein as lev
 import re
+from chatbot.oasa_api import oasa_bus_time
 
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
@@ -25,6 +26,7 @@ with open(training_data_file, encoding='utf-8') as data_file:
 
 stops = [word_tokenize(strip_accents(stop_name[0].lower())) for stop_name in db.session.query(Stop.stop_names)]
 stops = [item for sublist in stops for item in sublist]
+exclude_POS_sw = ["NUM"]
 
 # add JSON patterns in stop words
 custom_stopwords = [strip_accents(stop_word) for stop_word in STOP_WORDS if strip_accents(stop_word) not in stops]
@@ -46,6 +48,10 @@ with open(synapse_file) as data_file:
 intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read())
 
 
+def stop_preprocessing():
+    print("lala")
+
+
 # calculate its response
 def getResponse(msg):
     predict = classify(msg.lower(), synapse_0, synapse_1, words, classes)
@@ -65,11 +71,10 @@ def getResponse(msg):
                     query = db.session.query(Stop)
                     text_tokens = word_tokenize(predict['excluded_sentence'].lower())
                     tokens_without_sw = " ".join([word for word in text_tokens if word not in custom_stopwords])
-                    print("REMAINING SENTENCE:", tokens_without_sw)
+                    print("REMAINING SENTENCE 1:", tokens_without_sw)
                     for stop in query:
-                        # use a similarity metric to suggest a stop
+                        # use a similarity metric to suggest a stop, exclude some POS
                         # also, create custom stopwords list that has the default + all words from the JSON patterns
-                        # also, exclude some POS
                         lev_distance = lev.distance(stop.stop_names.lower(), tokens_without_sw)
                         if lev_distance < min:
                             min = lev_distance
@@ -84,19 +89,25 @@ def getResponse(msg):
                 if tag == 'busRoute':
                     query = db.session.query(Bus)
                     bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
-                    print("REMAINING SENTENCE:", bus_id_format)
+                    print("REMAINING SENTENCE 2:", bus_id_format)
                     for bus in query:
-                        if bus.line_id in bus_id_format[0].upper():
+                        if bus.line_id in bus_id_format[0].upper() and bus_id_format[0].upper() in bus.line_id:
                             bus_result = bus_id_format[0].upper()
                             flag = 1
                             found_bus = bus
                     if flag == 0:
                         return "Δέν το ξέρω αυτό το λεωφορείο", tag, None
                     return result + " " + bus_result, tag, found_bus
-
-                result = 'under construction' + tag
-                tag = "None"
-                return result, tag, None
+                # TODO: 3. Dynamic (oasa_API) info -- busTime class detected: Return bus estimated time
+                if tag == 'busTime':
+                    query_bus = db.session.query(Bus)
+                    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
+                    for bus in query_bus:
+                        if bus.line_id in bus_id_format[0].upper() and bus_id_format[0].upper() in bus.line_id:
+                            route_code = bus.route_code
+                    bus_times = oasa_bus_time(route_code)
+                    return result + " " + bus_id_format[0] + " ", tag, bus_times
+                return "Δέν ξέρω σε πόσο θα έρθει αυτό το λεωφορείο", tag, None
     else:  # doesn't belong to any class
         result = "Χμμμ. Για ξαναπές το αυτό"
         tag = "None"
@@ -104,4 +115,4 @@ def getResponse(msg):
 
 
 # Probabilistic results -> testing reasons (this doesnt have cust_sw in it yet)
-print(classify("θελω να ξερω ποιο περναει απο σταση κατω πατησια", synapse_0, synapse_1, words, classes))
+print(classify("σε ποσο ερχεται το β12", synapse_0, synapse_1, words, classes))
