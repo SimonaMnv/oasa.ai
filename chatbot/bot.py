@@ -83,7 +83,7 @@ def getResponse(msg):
                 # TODO: 2. Static info -- busRoute class detected: Return bus info
                 if tag == 'busRoute':
                     query = db.session.query(Bus)
-                    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg)
+                    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
                     print("REMAINING SENTENCE:", bus_id_format)
                     for bus in query:
                         if bus.line_id in bus_id_format[0].upper():
