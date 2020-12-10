@@ -35,7 +35,7 @@ margin-top: 60px;
 #textInput {
 width: 87%;
 border: none;
-border-bottom: 3px solid #009688;
+border-bottom: 3px solid #8d6a52;
 font-family: monospace;
 font-size: 17px;
 }
@@ -52,7 +52,7 @@ text-align: right;
 line-height: 30px;
 }
 .userText span {
-background-color: #009688;
+background-color: #6b4a6e;
 padding: 10px;
 border-radius: 2px;
 }
@@ -64,7 +64,7 @@ text-align: left;
 line-height: 30px;
 }
 .botText span {
-background-color: #EF5350;
+background-color: #4c7073;
 padding: 10px;
 border-radius: 2px;
 }

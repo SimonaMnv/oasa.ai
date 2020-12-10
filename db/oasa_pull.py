@@ -43,6 +43,7 @@ def fill_bus():
         db.session.add(record)
         db.session.commit()
 
+        # many:many relationship creation between stops and buses
         fill_associations(record)
 
 
@@ -62,8 +63,4 @@ def insert_association(bus, stop):
 fill_stops()
 fill_bus()
 
-# # TODO: fill the bidirectional many:many relationship
-# b = Bus()
-# a = Association(extra_data="some data")
-# a.stop = Stop()
-# b.stops.append(a)
+print("data collected")
