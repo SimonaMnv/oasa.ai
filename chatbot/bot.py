@@ -11,7 +11,7 @@ from spacy.lang.el.stop_words import STOP_WORDS
 from chatbot.utils.utils import strip_accents
 import Levenshtein as lev
 import re
-from chatbot.oasa_api import oasa_bus_time
+import requests
 
 nlp = spacy.load('el_core_news_lg')
 engine = create_engine('sqlite:///oasa.db')
@@ -24,18 +24,6 @@ training_data_file = 'data/training_dataGREEK.json'
 with open(training_data_file, encoding='utf-8') as data_file:
     training_data = json.load(data_file)
 
-stops = [word_tokenize(strip_accents(stop_name[0].lower())) for stop_name in db.session.query(Stop.stop_names)]
-stops = [item for sublist in stops for item in sublist]
-exclude_POS_sw = ["NUM"]
-
-# add JSON patterns in stop words
-custom_stopwords = [strip_accents(stop_word) for stop_word in STOP_WORDS if strip_accents(stop_word) not in stops]
-for intent in training_data['intents']:
-    for pattern in intent['patterns']:
-        w = nlp(strip_accents(pattern.lower()))
-        for word in w:
-            custom_stopwords.append(str(word))
-
 # load our calculated synapse values
 synapse_file = 'data/synapses.json'
 with open(synapse_file) as data_file:
@@ -46,17 +34,70 @@ with open(synapse_file) as data_file:
     classes = synapse['classes']
 
 intents = json.loads(open('data/training_dataGREEK.json', encoding='utf-8').read())
+# --- Create custom stop words to find stop names easier
+stops = [word_tokenize(strip_accents(stop_name[0].lower())) for stop_name in db.session.query(Stop.stop_names)]
+stops = [item for sublist in stops for item in sublist]
+exclude_POS_sw = ["NUM"]
+
+# --- add JSON patterns in stop words
+custom_stopwords = [strip_accents(stop_word) for stop_word in STOP_WORDS if strip_accents(stop_word) not in stops]
+for intent in training_data['intents']:
+    for pattern in intent['patterns']:
+        w = nlp(strip_accents(pattern.lower()))
+        for word in w:
+            custom_stopwords.append(str(word))
 
 
-def stop_preprocessing():
-    print("lala")
+def get_oasa_bus_time(routecode):
+    # take stop code
+    responseSTOPCODE = requests.post("http://telematics.oasa.gr/api/?act=webGetStops&p1=" + str(routecode))
+    json_response2 = responseSTOPCODE.json()
+    stop_codes = []
+    stop_names = []
+    for sc in json_response2:
+        stop_codes.append(sc['StopCode'])  # each stop has a stop code
+        stop_names.append(sc['StopDescr'])  # for each stop code we have a stop name
+
+    time_results = []
+    # take real time arrival
+    for stop_code, stop_name in zip(stop_codes, stop_names):
+        responseBUSTIME = requests.post("http://telematics.oasa.gr/api/?act=getStopArrivals&p1=" + str(stop_code))
+        json_response3 = responseBUSTIME.json()
+
+        if json_response3 is not None:
+            time_results.append(stop_name + " σε: " + json_response3[0]['btime2'] + " λεπτά")
+
+    return time_results
+
+
+# preprocess stop names -- suggest similar to users input
+# TODO: This could improve
+def get_stop_info(predict, result, tag):
+    min = 5
+
+    query = db.session.query(Stop)
+    text_tokens = word_tokenize(predict['excluded_sentence'].lower())
+    tokens_without_sw = " ".join([word for word in text_tokens if word not in custom_stopwords])
+    for stop in query:
+        # use a similarity metric to suggest a stop, exclude some POS
+        # also, create custom stopwords list that has the default + all words from the JSON patterns
+        lev_distance = lev.distance(stop.stop_names.lower(), tokens_without_sw)
+        if lev_distance < min:
+            min = lev_distance
+            min_name = stop.stop_names
+            print(min_name, min)
+            stop_result = min_name
+            min_stop = stop
+            if min == 0:
+                break
+    else:
+        return "Δεν βρήκα κάποια στάση που να ταιριάζει με αυτή που λές!", tag, None
+    return result + " " + stop_result, tag, min_stop
 
 
 # calculate its response
 def getResponse(msg):
     predict = classify(msg.lower(), synapse_0, synapse_1, words, classes)
-    min = 19800
-    min_stop = None
     flag = 0
 
     # does usr_input belong to a class?
@@ -68,28 +109,12 @@ def getResponse(msg):
                 result = random.choice(i['responses'])
                 # TODO: 1. Static info -- StopInfo class detected: Return stop info
                 if tag == 'stopInfo':
-                    query = db.session.query(Stop)
-                    text_tokens = word_tokenize(predict['excluded_sentence'].lower())
-                    tokens_without_sw = " ".join([word for word in text_tokens if word not in custom_stopwords])
-                    print("REMAINING SENTENCE 1:", tokens_without_sw)
-                    for stop in query:
-                        # use a similarity metric to suggest a stop, exclude some POS
-                        # also, create custom stopwords list that has the default + all words from the JSON patterns
-                        lev_distance = lev.distance(stop.stop_names.lower(), tokens_without_sw)
-                        if lev_distance < min:
-                            min = lev_distance
-                            min_name = stop.stop_names
-                            print(min_name, min)
-                            stop_result = min_name
-                            min_stop = stop
-                            if min == 0:
-                                break
-                    return result + " " + stop_result, tag, min_stop
+                    stop_result, tag, min_stop = get_stop_info(predict, result, tag)
+                    return stop_result, tag, min_stop
                 # TODO: 2. Static info -- busRoute class detected: Return bus info
                 if tag == 'busRoute':
                     query = db.session.query(Bus)
                     bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
-                    print("REMAINING SENTENCE 2:", bus_id_format)
                     for bus in query:
                         if bus.line_id in bus_id_format[0].upper() and bus_id_format[0].upper() in bus.line_id:
                             bus_result = bus_id_format[0].upper()
@@ -105,7 +130,7 @@ def getResponse(msg):
                     for bus in query_bus:
                         if bus.line_id in bus_id_format[0].upper() and bus_id_format[0].upper() in bus.line_id:
                             route_code = bus.route_code
-                    bus_times = oasa_bus_time(route_code)
+                    bus_times = get_oasa_bus_time(route_code)
                     return result + " " + bus_id_format[0] + " ", tag, bus_times
                 return "Δέν ξέρω σε πόσο θα έρθει αυτό το λεωφορείο", tag, None
     else:  # doesn't belong to any class
@@ -114,5 +139,5 @@ def getResponse(msg):
         return result, tag, None
 
 
-# Probabilistic results -> testing reasons (this doesnt have cust_sw in it yet)
+# Probabilistic results -> testing reasons (this doesnt have cust_sw in it)
 print(classify("σε ποσο ερχεται το β12", synapse_0, synapse_1, words, classes))
