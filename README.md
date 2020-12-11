@@ -31,7 +31,7 @@ The following directories exist in the system:
 ## Steps to run 
 * to just chat: chat.py,
 * to create and drain data from oasa api: models.py > oasa_pull > stop_name_preprocessing,
-* to train the NLP model: edit data/training_dataGREEK > ..train.py. 
+* to train the NLP model: edit data/training_dataGREEK > ../train.py. 
 
 ## Versions
 
