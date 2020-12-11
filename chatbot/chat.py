@@ -14,15 +14,18 @@ def home():
 def get_bot_response():
     userText = request.args.get('msg')
     resp, tag, result = getResponse(userText)
+
     if tag == "stopInfo" and result is not None:
         stops = [st for st in Stop.query.filter_by(stop_names=result.stop_names).all()]
         bus_codes = [b.bus.line_id + ": " + b.bus.line_descr for st in stops for b in st.buses]
-        resp = str(resp) + " είναι παιδάκι μου πολλά, να πχ: \n" + ", ".join(bus_codes)
-        resp += ", αλλά μεγάλη γυναίκα είμαι, μπορεί να ξεχνάω τίποτα"
+        resp = str(resp) + '<br/>' + ", ".join(bus_codes)
     if tag == "busRoute" and result is not None:
         buses = [bs for bs in Bus.query.filter_by(line_id=result.line_id).all()]
         stop_names = [s.stop.stop_names for bs in buses for s in bs.stops]
-        resp = str(resp) + "\n" + ", ".join(stop_names)
+        resp = str(resp) + '<br/>' + ", ".join(stop_names)
+    if tag == "busTime" and result is not None:
+        for times in result:
+            resp += '<br/>' + times
     return str(resp)
 
 
