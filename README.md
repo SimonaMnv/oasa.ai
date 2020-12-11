@@ -40,3 +40,4 @@ The following directories exist in the system:
 | Python         |3.8  |
 
 
+![example](https://user-images.githubusercontent.com/59322298/101964284-89e0eb80-3c19-11eb-85de-7459b0f7f050.PNG)
