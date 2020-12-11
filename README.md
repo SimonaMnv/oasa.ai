@@ -3,8 +3,8 @@
 ## General Description 
 
 Greek chatbot that retrieves stop and bus information. In terms of technologies/frameworks, the following were used:
-* flask
-* nlp
+* Flask,
+* NLP (Spacy),
 * HTML/CSS, used to build the UI of oasa.ai.
 
 ## Building steps
@@ -29,15 +29,14 @@ The following directories exist in the system:
 * **chatbot**, this is where the NLP model processed the user's input and returns a response either from the local db (static info) or from the oasa api (dynamic info)
 
 ## Steps to run 
+to just chat: chat.py
 to load data anew: models.py > oasa_pull > stop_name_preprocessing 
 to train model anew: edit data/training_dataGREEK > ..train.py 
-to just chat: chat.py
 
 ## Versions
 
 | Framework/Technology|Version|
 | ------------- |:-------------:|
-| Neo4j         | 3.4.0 |
-| Elasticsearch | 5.6.3 |
-| Python | 3.6      |
+| Python         |3.8  |
+
 
