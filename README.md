@@ -16,4 +16,3 @@ Greek chatbot
 =============================================================
 * TODO1: Many:Many relationship table between stops and buses
 * TODO2: A slightly better UI 
-=============================================================
