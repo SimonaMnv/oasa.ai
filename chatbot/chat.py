@@ -18,14 +18,14 @@ def get_bot_response():
     if tag == "stopInfo" and result is not None:
         stops = [st for st in Stop.query.filter_by(stop_names=result.stop_names).all()]
         bus_codes = [b.bus.line_id + ": " + b.bus.line_descr for st in stops for b in st.buses]
-        resp = str(resp) + "\n" + ", ".join(bus_codes)
+        resp = str(resp) + '<br/>' + ", ".join(bus_codes)
     if tag == "busRoute" and result is not None:
         buses = [bs for bs in Bus.query.filter_by(line_id=result.line_id).all()]
         stop_names = [s.stop.stop_names for bs in buses for s in bs.stops]
-        resp = str(resp) + "\n" + ", ".join(stop_names)
+        resp = str(resp) + '<br/>' + ", ".join(stop_names)
     if tag == "busTime" and result is not None:
         for times in result:
-            resp += times + " "
+            resp += '<br/>' + times
     return str(resp)
 
 
