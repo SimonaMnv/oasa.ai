@@ -29,9 +29,9 @@ The following directories exist in the system:
 * **chatbot**, this is where the NLP model processed the user's input and returns a response either from the local db (static info) or from the oasa api (dynamic info)
 
 ## Steps to run 
-to just chat: chat.py,
-to load data anew: models.py > oasa_pull > stop_name_preprocessing,
-to train model anew: edit data/training_dataGREEK > ..train.py. 
+* to just chat: chat.py,
+* to load data anew: models.py > oasa_pull > stop_name_preprocessing,
+* to train model anew: edit data/training_dataGREEK > ..train.py. 
 
 ## Versions
 
