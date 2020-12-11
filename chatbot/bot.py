@@ -73,7 +73,7 @@ def get_oasa_bus_time(routecode):
 # preprocess stop names -- suggest similar to users input
 # TODO: This could improve
 def get_stop_info(predict, result, tag):
-    min = 5
+    min = 3
 
     query = db.session.query(Stop)
     text_tokens = word_tokenize(predict['excluded_sentence'].lower())
@@ -90,8 +90,9 @@ def get_stop_info(predict, result, tag):
             min_stop = stop
             if min == 0:
                 break
-    else:
+    if min_stop is None:
         return "Δεν βρήκα κάποια στάση που να ταιριάζει με αυτή που λές!", tag, None
+
     return result + " " + stop_result, tag, min_stop
 
 
@@ -99,6 +100,7 @@ def get_stop_info(predict, result, tag):
 def getResponse(msg):
     predict = classify(msg.lower(), synapse_0, synapse_1, words, classes)
     flag = 0
+    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
 
     # does usr_input belong to a class?
     if predict['probability']:
@@ -107,14 +109,13 @@ def getResponse(msg):
         for i in list_of_intents:
             if i['class'] == tag:
                 result = random.choice(i['responses'])
-                # TODO: 1. Static info -- StopInfo class detected: Return stop info
+                # 1. Static info -- StopInfo class detected: Return stop info
                 if tag == 'stopInfo':
                     stop_result, tag, min_stop = get_stop_info(predict, result, tag)
                     return stop_result, tag, min_stop
-                # TODO: 2. Static info -- busRoute class detected: Return bus info
-                if tag == 'busRoute':
+                # 2. Static info -- busRoute class detected: Return bus info
+                elif tag == 'busRoute':
                     query = db.session.query(Bus)
-                    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
                     for bus in query:
                         if bus.line_id in bus_id_format[0].upper() and bus_id_format[0].upper() in bus.line_id:
                             bus_result = bus_id_format[0].upper()
@@ -123,16 +124,19 @@ def getResponse(msg):
                     if flag == 0:
                         return "Δέν το ξέρω αυτό το λεωφορείο", tag, None
                     return result + " " + bus_result, tag, found_bus
-                # TODO: 3. Dynamic (oasa_API) info -- busTime class detected: Return bus estimated time
-                if tag == 'busTime':
+                # 3. Dynamic (oasa_API) info -- busTime class detected: Return bus estimated time
+                elif tag == 'busTime':
                     query_bus = db.session.query(Bus)
-                    bus_id_format = re.findall(r'[α-ζ][0-9]{1,3}|[0-9]{1,3}|[0-9]{1,3}[α-ζ] ', msg.lower())
                     for bus in query_bus:
                         if bus.line_id in bus_id_format[0].upper() and bus_id_format[0].upper() in bus.line_id:
                             route_code = bus.route_code
+                            flag = 1
+                    if flag == 0:
+                        return "Δέν ξέρω σε πόσο θα έρθει αυτό το λεωφορείο", tag, None
                     bus_times = get_oasa_bus_time(route_code)
                     return result + " " + bus_id_format[0] + " ", tag, bus_times
-                return "Δέν ξέρω σε πόσο θα έρθει αυτό το λεωφορείο", tag, None
+                else:
+                    return result, tag, None   # some other class like greetings, with some random response
     else:  # doesn't belong to any class
         result = "Χμμμ. Για ξαναπές το αυτό"
         tag = "None"
@@ -140,4 +144,4 @@ def getResponse(msg):
 
 
 # Probabilistic results -> testing reasons (this doesnt have cust_sw in it)
-print(classify("σε ποσο ερχεται το β12", synapse_0, synapse_1, words, classes))
+print(classify("σε ποσο το α15", synapse_0, synapse_1, words, classes))

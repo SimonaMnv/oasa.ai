@@ -1,11 +1,11 @@
 body
 {
 font-family: Garamond;
-background-color: black;
+background-image: url("bg-01.jpg")
 }
 h1
 {
-color: black;
+color: #000000;
 margin-bottom: 0;
 margin-top: 0;
 text-align: center;
@@ -13,24 +13,25 @@ font-size: 40px;
 }
 h3
 {
-color: black;
+color: #000000;
 font-size: 20px;
 margin-top: 3px;
 text-align: center;
 }
 #chatbox
 {
-background-color: black;
-margin-left: auto;
-margin-right: auto;
+padding: 10px;
+border-radius: 10px;
+background-color: #252525;
+margin-left: 550px;
 width: 40%;
-margin-top: 60px;
+margin-top: 40px;
 }
 #userInput {
-margin-left: auto;
+margin-left: 550px;
 margin-right: auto;
-width: 40%;
-margin-top: 60px;
+width: 42.5%;
+margin-top: 10px;
 }
 #textInput {
 width: 87%;
@@ -40,9 +41,16 @@ font-family: monospace;
 font-size: 17px;
 }
 #buttonInput {
-padding: 3px;
+padding: 5px;
 font-family: monospace;
-font-size: 17px;
+font-size: 18px;
+border-radius: 10px;
+background-color: #252525;
+border: 10px;
+color: white;
+text-align: center;
+text-decoration: none;
+display: inline-block;
 }
 .userText {
 color: white;
@@ -53,7 +61,7 @@ line-height: 30px;
 }
 .userText span {
 background-color: #6b4a6e;
-padding: 10px;
+padding: 3px;
 border-radius: 2px;
 }
 .botText {
@@ -65,7 +73,7 @@ line-height: 30px;
 }
 .botText span {
 background-color: #4c7073;
-padding: 10px;
+padding: 3px;
 border-radius: 2px;
 }
 #tidbit {
