@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from chatbot.bot import getResponse
 from db.models import Stop, Bus
+from chatbot.utils.logger import log_chat
 
 app = Flask(__name__)
 
@@ -26,6 +27,9 @@ def get_bot_response():
     if tag == "busTime" and result is not None:
         for times in result:
             resp += '<br/>' + times
+
+    log_chat(userText, resp)
+
     return str(resp)
 
 
