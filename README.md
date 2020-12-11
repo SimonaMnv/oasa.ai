@@ -35,7 +35,7 @@ to train model anew: edit data/training_dataGREEK > ..train.py
 
 ## Versions
 
-| Pyhton|Version|
+| |Version|
 | ------------- |:-------------:|
 | Python         |3.8  |
 
