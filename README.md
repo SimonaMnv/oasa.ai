@@ -1,5 +1,5 @@
-# grandm.ai
-Greek chatbot
+# oasa.ai
+Greek chatbot that retrieves stop and bus information.
 
 * Phase 1: Create flask sqlite db, create and form tables, drain the static info from OASA API into db. # DONE
 * Phase 2: create a many:many relationship of the 2 tables # DONE
