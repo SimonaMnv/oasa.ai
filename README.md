@@ -11,8 +11,9 @@ Greek chatbot
 * Phase 3: Chat API added # DONE
 * Phase 4: Class "stopInfo" responses # DONE
 * Phase 5: Class "BusRoute" response  # DONE
-* Phase 6: Class "busTime" response   # IN PROGRESS
+* Phase 6: Class "busTime" response   # DONE
 
-
+=============================================================
 * TODO1: Many:Many relationship table between stops and buses
 * TODO2: A slightly better UI 
+=============================================================
