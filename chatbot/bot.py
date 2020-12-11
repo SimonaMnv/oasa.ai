@@ -73,7 +73,8 @@ def get_oasa_bus_time(routecode):
 # preprocess stop names -- suggest similar to users input
 # TODO: This could improve
 def get_stop_info(predict, result, tag):
-    min = 3
+    min = 100
+    min_stop = None
 
     query = db.session.query(Stop)
     text_tokens = word_tokenize(predict['excluded_sentence'].lower())

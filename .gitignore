@@ -1,3 +1,4 @@
 # *.db
 .idea/*
 db/__pycache__/*
+logs.txt
