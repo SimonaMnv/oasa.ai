@@ -13,9 +13,9 @@ Greek chatbot that retrieves stop and bus information. In terms of technologies/
 * Phase 2: create a many:many relationship of the 2 tables  
 * Phase 3: Value mapping. Line description needs preprocessing/mapping? 
     * static replacement is bad option - solution: when user types a stop, check if its most part matches a db stop_name  
-    * check each stops suffix, map based on that?  
-    * check if user input exists as is. If not, suggest similar stops?  
-    * Add the JSON patterns as stop words  
+    * check each stops suffix, map based on that? -> bad results
+    * check if user input exists as is. If not, suggest similar stops? -> good result
+    * Add the JSON patterns as stop words, add specific POS in stop words too 
 * Phase 3: Chat API added  
 * Phase 4: Class "stopInfo" responses -- static information -> drained from local db
 * Phase 5: Class "BusRoute" response -- static information -> drained from local db
