@@ -20,7 +20,7 @@ Greek chatbot that retrieves stop and bus information. In terms of technologies/
 * Phase 4: Class "stopInfo" responses -- static information -> drained from local db
 * Phase 5: Class "BusRoute" response -- static information -> drained from local db
 * Phase 6: Class "busTime" response -- dynamic/real-time information -> drained from oasa api
-* Phase 7: Chat Logger adedd
+* Phase 7: Chat Logger added
 
 ## Directory Structure
 
